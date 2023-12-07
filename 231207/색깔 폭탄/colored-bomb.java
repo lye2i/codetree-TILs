@@ -10,17 +10,19 @@ public class Main {
 	static int N, M, answer, map[][], visit[][];
 	
 	static class Bomb implements Comparable<Bomb>{
-		int n, r, c;
+		int sum, nr, r, c;
 		
-		Bomb(int n, int r, int c) {
-			this.n = n;
+		Bomb(int sum, int nr, int r, int c) {
+			this.sum = sum;
+			this.nr = nr;
 			this.r = r;
 			this.c = c;
 		}
 		
 		@Override
 		public int compareTo(Bomb b) {
-			if(this.n != b.n)	return b.n - this.n;
+			if(this.sum != b.sum)	return b.sum - this.sum;
+			else if(this.nr != b.nr)	return this.nr - b.nr;
 			else if(this.r != b.r)	return b.r - this.r;
 			else	return this.c - b.c;
 		}
@@ -41,7 +43,7 @@ public class Main {
 		
 		while(true) {
 			Bomb bomb = findBomb();
-			if(bomb == null || bomb.n < 2)	break;
+			if(bomb == null || bomb.sum < 2)	break;
 			else	explode(bomb);
 			gravity();
 			rotation();
@@ -50,7 +52,7 @@ public class Main {
 		
 		System.out.print(answer);
 	}
-	
+
 	private static Bomb findBomb() {
 		PriorityQueue<Bomb> pq = new PriorityQueue<Bomb>();
 		visit = new int[N][N];
@@ -69,7 +71,7 @@ public class Main {
 
 	private static Bomb getBomb(int m, int i, int j) {
 		Queue<int[]> queue = new LinkedList<int[]>();
-		Bomb bomb = new Bomb(1, i, j);
+		Bomb bomb = new Bomb(1, 0, i, j);
 		queue.add(new int[] {i, j});
 		
 		while(!queue.isEmpty()) {
@@ -82,10 +84,11 @@ public class Main {
 				
 				if(map[dr][dc] == 0 || map[dr][dc] == m) {
 					visit[dr][dc] = m;
-					bomb.n++;
+					bomb.sum++;
 					queue.add(new int[] {dr, dc});
 					
-					if(map[dr][dc] == m) {
+					if(map[dr][dc] == 0)	bomb.nr++;
+					else {
 						if(bomb.r < dr || (bomb.r == dr && bomb.c > dc)) {
 							bomb.r = dr;
 							bomb.c = dc;
@@ -122,7 +125,7 @@ public class Main {
 			}
 		}
 
-		answer += (bomb.n * bomb.n);
+		answer += (bomb.sum * bomb.sum);
 	}
 	
 	private static void gravity() {
